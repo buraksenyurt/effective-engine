@@ -24,4 +24,57 @@ cd GalaxyExplorer.Entity
 dotnet add package Microsoft.EntityFrameworkCore -v 5.0.6
 ```
 
-## 1 - 
+## 1 - Entity Sınıflarının İnşası
+
+Uzay gemilerini Spaceship sınıfı ile işaret edeceğim. Adı ve ışık yılı olarak gidebileceği mesafeyi taşıması yeterli.
+
+```csharp
+namespace GalaxyExplorer.Entity
+{
+    public class Spaceship
+    {
+        public int SpaceshipId { get; set; }
+        public string Name { get; set; }
+        public double Range { get; set; }
+        public int MissionId { get; set; }
+    }
+}
+```
+
+Mürettebatı ise Voyager olarak tanımlamıştım. Şimdişik aşağıdaki gibi kullanacağım. Kaşifin adı, rütbesi ve ilk görev tarih olsun yeterli.
+
+```csharp
+using System;
+
+namespace GalaxyExplorer.Entity
+{
+    public class Voyager
+    {
+        public int VoyagerId { get; set; }
+        public string Name { get; set; }
+        public string Grade { get; set; }
+        public DateTime FirstMissionDate { get; set; }
+        public int MissionId { get; set; }
+    }
+}
+```
+
+Bir görev söz konusu. Bunu Mission sınıfı ile temsil edeceğim. Bir görev bir gemiyle ilişkili olmalı. Ayrıca bir göreve birden fazla mürettebat dahil olabilmeli.
+
+```csharp
+using System;
+using System.Collections.Generic;
+
+namespace GalaxyExplorer.Entity
+{
+    public class Mission
+    {
+        public int MissionId { get; set; }
+        public int SpaceshipId { get; set; }
+        public string Name { get; set; }
+        public int PlannedDuration { get; set; }
+        public DateTime StartDate { get; set; }
+        public IEnumerable<Voyager> Voyagers { get; set; }
+    }
+}
+```
