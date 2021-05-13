@@ -54,6 +54,7 @@ namespace GalaxyExplorer.Service
                         {
                             Name = v.Name,
                             Grade = v.Grade,
+                            OnMission = true,
                             MissionId = mission.MissionId // Görevle ilişkilendirdik
                         };
                         voyagers.Add(voyager);

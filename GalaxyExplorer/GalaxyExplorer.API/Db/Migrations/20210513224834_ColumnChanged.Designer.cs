@@ -4,14 +4,16 @@ using GalaxyExplorer.Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace GalaxyExplorer.API.Db.Migrations
 {
     [DbContext(typeof(GalaxyExplorerDbContext))]
-    partial class GalaxyExplorerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210513224834_ColumnChanged")]
+    partial class ColumnChanged
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
