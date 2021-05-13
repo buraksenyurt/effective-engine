@@ -1,4 +1,5 @@
 ﻿using GalaxyExplorer.Entity;
+using GalaxyExplorer.Service;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,7 @@ namespace GalaxyExplorer.API
                 // SQL Server baz alınacak ve appsettings.json'dan GalaxyDbConnStr ile belirtilen bağlantı bilgisi kullanılacak.
                 options.UseSqlServer(Configuration.GetConnectionString("GalaxyDbConnStr"), b => b.MigrationsAssembly("GalaxyExplorer.API"));
             });
+            services.AddTransient<IMissionService, MissionService>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
