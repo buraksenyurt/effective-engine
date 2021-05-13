@@ -36,7 +36,7 @@ namespace GalaxyExplorer.Service
                     await _dbContext.SaveChangesAsync(); // Gemiyi görevde durumuna alalım
 
                     // Görev nesnesini oluşturalım
-                    Mission mission = new Mission
+                    Mission mission = new()
                     {
                         Name = request.Name,
                         PlannedDuration = request.PlannedDuration,
@@ -50,7 +50,7 @@ namespace GalaxyExplorer.Service
                     var voyagers = new List<Voyager>();
                     foreach (var v in request.Voyagers)
                     {
-                        Voyager voyager = new Voyager // Her biri için bir Voyager nesnesi örnekleyelim
+                        Voyager voyager = new()
                         {
                             Name = v.Name,
                             Grade = v.Grade,

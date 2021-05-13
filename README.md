@@ -107,6 +107,7 @@ namespace GalaxyExplorer.Entity
             modelBuilder.Entity<Spaceship>().HasData(
                 new Spaceship
                 {
+                    SpaceshipId=1,
                     Name = "Saturn IV",
                     OnMission = false,
                     Range = 1.2,
@@ -114,6 +115,7 @@ namespace GalaxyExplorer.Entity
                 },
                 new Spaceship
                 {
+                    SpaceshipId = 2,
                     Name = "Pathfinder",
                     OnMission = true,
                     Range = 2.6,
@@ -121,6 +123,7 @@ namespace GalaxyExplorer.Entity
                 },
                 new Spaceship
                 {
+                    SpaceshipId = 3,
                     Name = "Event Horizon",
                     OnMission = false,
                     Range = 9.9,
@@ -128,6 +131,7 @@ namespace GalaxyExplorer.Entity
                 },
                 new Spaceship
                 {
+                    SpaceshipId = 4,
                     Name = "Captain Marvel",
                     OnMission = false,
                     Range = 3.14,
@@ -135,6 +139,7 @@ namespace GalaxyExplorer.Entity
                 },
                 new Spaceship
                 {
+                    SpaceshipId = 5,
                     Name = "Lucky 13",
                     OnMission = false,
                     Range = 7.7,
@@ -349,4 +354,72 @@ namespace GalaxyExplorer.Service
 }
 ```
 
-## 5 - 
+## 5 - Sırada Controller var. Yani Web API
+
+Önce projeyi oluşturup gerekli paketleri ekledim.
+
+```bash
+# Web API projesini oluştur
+dotnet new webapi -o GalaxyExplorer.API
+# Solution'a ekle
+dotnet sln add .\GalaxyExplorer.API\GalaxyExplorer.API.csproj
+# Proje klasörüne geç
+cd .\GalaxyExplorer.API
+# EntityFrameworkCore paketini ekle
+dotnet add package Microsoft.EntityFrameworkCore -v 5.0.6
+# Local SQL kullanmak istedim. Onun paketini ekle
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer -v 5.0.6
+# Migration için gerekli olacak paket
+dotnet add package Microsoft.EntityFrameworkCore.Design -v 5.0.6
+
+# WeatherForecast* tiplerini sildim
+
+# Service ve DTO projelerini referasn ettim
+dotnet add reference ..\GalaxyExplorer.Service\GalaxyExplorer.Service.csproj
+dotnet add reference ..\GalaxyExplorer.DTO\GalaxyExplorer.DTO.csproj
+dotnet add reference ..\GalaxyExplorer.Entity\GalaxyExplorer.Entity.csproj
+```
+
+Startup.cs içerisindeki ConfigureServices metodunu aşağıdaki hale getirdim.
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    // DI serivslerine DbContext türevini ekliyoruz. 
+    services.AddDbContext<GalaxyExplorerDbContext>(options =>
+    {
+        // SQL Server baz alınacak ve appsettings.json'dan GalaxyDbConnStr ile belirtilen bağlantı bilgisi kullanılacak.
+        options.UseSqlServer(Configuration.GetConnectionString("GalaxyDbConnStr"), b => b.MigrationsAssembly("GalaxyExplorer.API"));
+    });
+    services.AddControllers();
+    services.AddSwaggerGen(c =>
+    {
+        c.SwaggerDoc("v1", new OpenApiInfo { Title = "GalaxyExplorer.API", Version = "v1" });
+    });
+}
+```
+
+ConnectionString bilgisi ise şöyle
+
+```json
+"ConnectionStrings": {
+      "GalaxyDbConnStr": "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=GalaxyExplorer;Integrated Security=True"
+    }
+```
+
+Migration işlemleri için dotnet ef aracını kullanadım ve aşağıdaki gibi ilerledim. 
+
+```bash
+# Tool kurulumu için
+dotnet tool install --global dotnet-ef
+# tool'u güncellemek için
+dotnet tool update --global dotnet-ef
+# tool'u projede kullanmak için
+dotnet add package Microsoft.EntityFrameworkCore.Design
+# kurulduğunu görmek için
+dotnet ef
+
+# Aşağıdaki komutları Web API projesi içinde çalıştırdım.
+dotnet ef migrations add Initial -o Db/Migrations
+dotnet ef database update
+```

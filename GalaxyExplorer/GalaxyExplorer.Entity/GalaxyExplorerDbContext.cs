@@ -20,6 +20,7 @@ namespace GalaxyExplorer.Entity
             modelBuilder.Entity<Spaceship>().HasData(
                 new Spaceship
                 {
+                    SpaceshipId=1,
                     Name = "Saturn IV",
                     OnMission = false,
                     Range = 1.2,
@@ -27,6 +28,7 @@ namespace GalaxyExplorer.Entity
                 },
                 new Spaceship
                 {
+                    SpaceshipId = 2,
                     Name = "Pathfinder",
                     OnMission = true,
                     Range = 2.6,
@@ -34,6 +36,7 @@ namespace GalaxyExplorer.Entity
                 },
                 new Spaceship
                 {
+                    SpaceshipId = 3,
                     Name = "Event Horizon",
                     OnMission = false,
                     Range = 9.9,
@@ -41,6 +44,7 @@ namespace GalaxyExplorer.Entity
                 },
                 new Spaceship
                 {
+                    SpaceshipId = 4,
                     Name = "Captain Marvel",
                     OnMission = false,
                     Range = 3.14,
@@ -48,6 +52,7 @@ namespace GalaxyExplorer.Entity
                 },
                 new Spaceship
                 {
+                    SpaceshipId = 5,
                     Name = "Lucky 13",
                     OnMission = false,
                     Range = 7.7,
