@@ -36,7 +36,8 @@ namespace GalaxyExplorer.Entity
         public int SpaceshipId { get; set; }
         public string Name { get; set; }
         public double Range { get; set; }
-        public int MissionId { get; set; }
+        public bool OnMission { get; set; }
+        public int MaxCrewCount { get; set; }
     }
 }
 ```
@@ -108,34 +109,99 @@ namespace GalaxyExplorer.Entity
                 {
                     Name = "Saturn IV",
                     OnMission = false,
-                    Range = 1.2
+                    Range = 1.2,
+                    MaxCrewCount=2
                 },
                 new Spaceship
                 {
                     Name = "Pathfinder",
                     OnMission = true,
-                    Range = 2.6
+                    Range = 2.6,
+                    MaxCrewCount = 5
                 },
                 new Spaceship
                 {
                     Name = "Event Horizon",
                     OnMission = false,
-                    Range = 9.9
+                    Range = 9.9,
+                    MaxCrewCount = 3
                 },
                 new Spaceship
                 {
                     Name = "Captain Marvel",
                     OnMission = false,
-                    Range = 3.14
+                    Range = 3.14,
+                    MaxCrewCount = 7
                 },
                 new Spaceship
                 {
                     Name = "Lucky 13",
                     OnMission = false,
-                    Range = 7.7
+                    Range = 7.7,
+                    MaxCrewCount = 7
                 }
             );
         }
     }
 }
 ```
+
+## 3 - DTO Tipleri için Bir Kütüphane Oluşturulması
+
+Görev kontrol tarafına sadece bir başlatma emri gelsin istiyorum. Görevin adı, katılacak mürettebatın adları gib az sayıda bilgi. Entity türlerini doğrudan API üzerinden açmak yerine bir ViewModel üstünden sadece aksiyona özgü verileri almak niyetindeyim. O yüzden Data Transfer Object tipleri kullanacağım.
+
+```bash
+# DTO Projesini açtım
+dotnet new classlib -o GalaxyExplorer.DTO
+
+# ve Solution'a ekledim
+dotnet sln add .\GalaxyExplorer.DTO\GalaxyExplorer.DTO.csproj
+```
+
+Sonrasında yeni bir görev başlatmak için kullanacağım aşağıdaki DTO sınıflarını ekledim.
+
+Göreve katılacak mürettebat için.
+
+```csharp
+using System.ComponentModel.DataAnnotations;
+
+namespace GalaxyExplorer.DTO
+{
+    public class VoyagerRequest
+    {
+        [Required]
+        [MinLength(3)]
+        [MaxLength(25)]
+        public string Name { get; set; }
+        [Required]
+        public string Grade { get; set; }
+    }
+}
+```
+
+Görevin kendisi için. En az iki en fazla 7 mürettebat olabilen bir görev. Gemi ataması havuzdaki müsait olanlardan yapılacak. Bu yüzden görev gemisi ile ilgili bir bilgi eklemedim.
+
+```csharp
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
+namespace GalaxyExplorer.DTO
+{
+    public class MissionStartRequest
+    {
+        [Required]
+        [MinLength(10)]
+        [MaxLength(50)]
+        public string Name { get; set; }
+        [Required]
+        [Range(12,24)] // En az 12 en fazla 24 aylık görev olabilir
+        public int PlannedDuration { get; set; }
+        [Required]
+        [MinLength(2)]
+        [MaxLength(7)] //Minimum 2 maksimum 7 mürettebat olsun diye
+        public List<VoyagerRequest> Voyagers { get; set; }
+    }
+}
+```
+

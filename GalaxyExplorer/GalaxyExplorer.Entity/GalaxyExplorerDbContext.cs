@@ -22,31 +22,36 @@ namespace GalaxyExplorer.Entity
                 {
                     Name = "Saturn IV",
                     OnMission = false,
-                    Range = 1.2
+                    Range = 1.2,
+                    MaxCrewCount=2
                 },
                 new Spaceship
                 {
                     Name = "Pathfinder",
                     OnMission = true,
-                    Range = 2.6
+                    Range = 2.6,
+                    MaxCrewCount = 5
                 },
                 new Spaceship
                 {
                     Name = "Event Horizon",
                     OnMission = false,
-                    Range = 9.9
+                    Range = 9.9,
+                    MaxCrewCount = 3
                 },
                 new Spaceship
                 {
                     Name = "Captain Marvel",
                     OnMission = false,
-                    Range = 3.14
+                    Range = 3.14,
+                    MaxCrewCount = 7
                 },
                 new Spaceship
                 {
                     Name = "Lucky 13",
                     OnMission = false,
-                    Range = 7.7
+                    Range = 7.7,
+                    MaxCrewCount = 7
                 }
             );
         }
