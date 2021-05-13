@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GalaxyExplorer.Entity", "Ga
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GalaxyExplorer.DTO", "GalaxyExplorer.DTO\GalaxyExplorer.DTO.csproj", "{C3932408-8B75-4576-8E83-9E839814501D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GalaxyExplorer.Service", "GalaxyExplorer.Service\GalaxyExplorer.Service.csproj", "{863FED75-3F1A-4CDC-AE21-C79A43ABEB7A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,5 +46,17 @@ Global
 		{C3932408-8B75-4576-8E83-9E839814501D}.Release|x64.Build.0 = Release|Any CPU
 		{C3932408-8B75-4576-8E83-9E839814501D}.Release|x86.ActiveCfg = Release|Any CPU
 		{C3932408-8B75-4576-8E83-9E839814501D}.Release|x86.Build.0 = Release|Any CPU
+		{863FED75-3F1A-4CDC-AE21-C79A43ABEB7A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{863FED75-3F1A-4CDC-AE21-C79A43ABEB7A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{863FED75-3F1A-4CDC-AE21-C79A43ABEB7A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{863FED75-3F1A-4CDC-AE21-C79A43ABEB7A}.Debug|x64.Build.0 = Debug|Any CPU
+		{863FED75-3F1A-4CDC-AE21-C79A43ABEB7A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{863FED75-3F1A-4CDC-AE21-C79A43ABEB7A}.Debug|x86.Build.0 = Debug|Any CPU
+		{863FED75-3F1A-4CDC-AE21-C79A43ABEB7A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{863FED75-3F1A-4CDC-AE21-C79A43ABEB7A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{863FED75-3F1A-4CDC-AE21-C79A43ABEB7A}.Release|x64.ActiveCfg = Release|Any CPU
+		{863FED75-3F1A-4CDC-AE21-C79A43ABEB7A}.Release|x64.Build.0 = Release|Any CPU
+		{863FED75-3F1A-4CDC-AE21-C79A43ABEB7A}.Release|x86.ActiveCfg = Release|Any CPU
+		{863FED75-3F1A-4CDC-AE21-C79A43ABEB7A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
