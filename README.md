@@ -466,3 +466,61 @@ dotnet ef
 dotnet ef migrations add Initial -o Db/Migrations
 dotnet ef database update
 ```
+
+## 6 - Testler
+
+Web API doğrudan çalıştırılınca Swagger arayüzü karşıma çıktı. Dolayısıyla ilk testleri yapmak oldukça kolay oldu. 
+
+![assets/asset_02.png](assets/assets_02.png)
+
+Örnek bir JSON içeriğini aşağıdaki gibi uyguladım.
+
+```json
+{
+  "name": "Ufuk Ötesi Macerası",
+  "plannedDuration": 18,
+  "voyagers": [
+    {
+      "name": "Kaptan Tupolev",
+      "grade": "Yüzbaşı"
+    },
+    {
+      "name": "Melani Garbo",
+      "grade": "Bilim Subayı"
+    },
+    {
+      "name": "Dursun Durmaz",
+      "grade": "Seyrüseferci"
+    }
+  ]
+}
+```
+
+Bu da gerekirse diye Curl komutu.
+
+```bash
+curl -X POST "https://localhost:44306/api/Mission" -H  "accept: */*" -H  "Content-Type: application/json" -d "{\"name\":\"Ufuk Ötesi Macerası\",\"plannedDuration\":18,\"voyagers\":[{\"name\":\"Kaptan Tupolev\",\"grade\":\"Yüzbaşı\"},{\"name\":\"Melani Garbo\",\"grade\":\"Bilim Subayı\"},{\"name\":\"Dursun Durmaz\",\"grade\":\"Seyrüseferci\"}]}"
+```
+
+Bu JSON içeriği için sonuçlar güzel.
+
+![assets/asset_03.png](assets/assets_03.png)
+
+Validasyonların çalıştığını görmek için aşağıdaki gibi bir JSON talebi denedim.
+
+```json
+{
+  "name": " ",
+  "plannedDuration": 10,
+  "voyagers": [
+    {
+      "name": "The Choosen One",
+      "grade": "Hacker"
+    }
+  ]
+}
+```
+
+Buna göre şöyle bir çıktı elde ettim. Yani doğrulama kontrolleri görevini yerine getirdi.
+
+![assets/asset_04.png](assets/assets_04.png)
