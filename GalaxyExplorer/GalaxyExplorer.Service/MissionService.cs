@@ -1,5 +1,6 @@
 ﻿using GalaxyExplorer.DTO;
 using GalaxyExplorer.Entity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,33 @@ namespace GalaxyExplorer.Service
         {
             _dbContext = dbContext;
         }
+        public async Task<GetVoyagersResponse> GetVoyagers(GetVoyagersRequest request)
+        {
+            var currentStartRow = (request.PageNumber - 1) * request.PageSize;
+            var response = new GetVoyagersResponse
+            {
+                // Kolaylık olsun diye sonraki sayfa için de bir link bıraktım
+                // Lakin başka kayıt yoksa birinci sayfaya da döndürebiliriz
+                NextPage = $"api/voyager?PageNumber={request.PageNumber + 1}&PageSize={request.PageSize}&OnMission={request.OnMission}", 
+                TotalVoyagers = await _dbContext.Voyagers.CountAsync(),
+                TotalActiveVoyagers = await _dbContext.Voyagers.CountAsync(v => v.OnMission == true)
+            };
+
+            var voyagers = await _dbContext.Voyagers
+                .Where(v => v.OnMission == request.OnMission)
+                .Skip(currentStartRow)
+                .Take(request.PageSize)
+                .Select(v => new VoyagerResponse
+                {
+                    Name = v.Name,
+                    Grade = v.Grade,
+                    Detail = $"api/voyager/{v.VoyagerId}" // Bu Voyager'ın detaylarını görmek için bir sayfaya gitmek isterse diye
+                })
+                .ToListAsync();
+            response.Voyagers = voyagers;
+
+            return response;
+        }
         public async Task<MissionStartResponse> StartMissionAsync(MissionStartRequest request)
         {
             using var transaction = await _dbContext.Database.BeginTransactionAsync(); // Transaction başlatalım
@@ -25,8 +53,8 @@ namespace GalaxyExplorer.Service
             {
                 // Mürettebat sayısı uygun olup aktif görevde olmayan bir gemi bulmalıyız. Aday havuzunu çekelim.
                 var crewCount = request.Voyagers.Count;
-                var candidates = _dbContext.Spaceships.Where(s => s.MaxCrewCount <= crewCount && s.OnMission == false).ToList();
-                if (candidates.Count >= 0)
+                var candidates = _dbContext.Spaceships.Where(s => s.MaxCrewCount >= crewCount && s.OnMission == false).ToList();
+                if (candidates.Count > 0)
                 {
                     Random rnd = new();
                     var candidateId = rnd.Next(0, candidates.Count);
@@ -78,7 +106,7 @@ namespace GalaxyExplorer.Service
                         Success = false,
                         Message = "Şu anda görev için müsait gemi yok"
                     };
-                }                
+                }
             }
             catch (Exception exp)
             {
