@@ -4,9 +4,7 @@ Haftasonu sıkılan .Net geliştiricisi için eğlencelik bir Web API kodlaması
 
 ![assets/asset_01.png](assets/assets_01.png)
 
-Gelecekte geçen bir zaman diliminde galaksinin uzak diyarlarını keşfetmek üzere Uzay Yolu'nu izlemiş mürettabattan oluşan gemiler vardır. Güneşin ve ayın konumuzla bir alakası yok ama kompozisyonu tamamlarlar diye düşündüm. Bir uzay gemisi _(Spaceship)_  içinde en az 2 en fazla 7 mürettebat _(Voyager)_ olabilir. Mürettebat görev kontrolün _(MissionControl)_ uygun gördüğü gömüyle bir göreve _(Mission)_ çıkar. Her görev tek bir gemiyle ilişkilendirilir. Görevin başlatılması için bir adının olması, kendilerine has takma isimleri olan mürettebatın bulunması, bir görev süresinin verilmesi, bir gemiyle görevin ilişkilendirilmesi yeterlidir. Senaryo tarafınızca istenildiği gibi genişletilebilir.
-
-Ben senaryoyu aşağıdaki şekilde ele aldım.
+Gelecekte geçen bir zaman diliminde galaksinin uzak diyarlarını keşfetmek üzere Uzay Yolu'nu izlemiş mürettabattan oluşan gemiler vardır. Güneşin ve ayın konumuzla bir alakası yok ama kompozisyonu tamamlarlar diye düşündüm. Bir uzay gemisi _(Spaceship)_  içinde en az 2 en fazla 7 mürettebat _(Voyager)_ olabilir. Mürettebat görev kontrolün _(MissionControl)_ uygun gördüğü gemiyle bir göreve _(Mission)_ çıkar. Her görev tek bir gemiyle ilişkilendirilir. Görevin başlatılması için bir adının olması, kendilerine has takma isimleri olan mürettebatın bulunması, görev süresi verilmesi, bir gemiyle görevin ilişkilendirilmesi yeterlidir. Senaryoyu birlikte genişletebiliriz ama varsayılan hali aşağıdaki gibidir. _Burası öğrencilere senaryonun anlatıldığı kısım. Eğlenceli olmalı, içeriye çekmeli, hatta eğitmen bunu canlı olarak çizerek anlatmalı_
 
 ## 0 - Başlangıç
  
@@ -42,7 +40,7 @@ namespace GalaxyExplorer.Entity
 }
 ```
 
-Mürettebatı ise Voyager olarak tanımlamıştım. Şimdişik aşağıdaki gibi kullanacağım. Kaşifin adı, rütbesi ve ilk görev tarih olsun yeterli.
+Mürettebatı ise Voyager olarak tanımlamıştım. Şimdilik aşağıdaki gibi kullanacağım. Kaşifin adı, rütbesi, ilk görev tarihi, aktif olup olmadığı bilgileri olsun yeterli.
 
 ```csharp
 using System;
@@ -81,9 +79,11 @@ namespace GalaxyExplorer.Entity
 }
 ```
 
+_Neden bu entity sınıflarını inşa ediyoruz diye sormalı karşılıklı görüş almalıyız._
+
 ## 2 - DbContext Sınıfının Yazılması
 
-GalaxyExplorerDbContext sınıfını aşağıdaki gibi yazmaya karar verdim.
+Senaryomuzda hangi veritabanını kullanacağımıza henüz karar vermedik lakin Entity Framework Core'dan yararlanacağız. Code First ilerleyebiliriz. Sonrasında isteyen istediği veritabanı ile çalışabilir _(Uygun olan veritabanı tabii)_ Bu amaçla GalaxyExplorerDbContext sınıfını aşağıdaki gibi yazmaya karar verdim. İçinde kullanıma hazır uzay gemileri de var.
 
 ```csharp
 using Microsoft.EntityFrameworkCore;
@@ -194,7 +194,7 @@ namespace GalaxyExplorer.Entity
 
 ## 3 - DTO Tipleri için Bir Kütüphane Oluşturulması
 
-Görev kontrol tarafına sadece bir başlatma emri gelsin istiyorum. Görevin adı, katılacak mürettebatın adları gib az sayıda bilgi. Entity türlerini doğrudan API üzerinden açmak yerine bir ViewModel üstünden sadece aksiyona özgü verileri almak niyetindeyim. O yüzden Data Transfer Object tipleri kullanacağım.
+Görev kontrol tarafına ilk etapta sadece bir başlatma emri gelsin istiyorum. Görevin adı, katılacak mürettebatın isimleri gibi az sayıda bilgi yeterli olabilir. Entity türlerini doğrudan API üzerinden açmak yerine bir ViewModel vasıtasıyla sadece aksiyona özgü değişkenlerle sunmak niyetindeyim. O yüzden Data Transfer Object olarak düşünülebilecek sınıfları kullandım. _DTO'lar yazılım dünyasının hangi noktasında karşımıza çıkarlar. Buradaki senaryodaki kullanım amacı dışında bir rolleri olabilir mi? şeklinde soru sorup müzakere etmek lazım._
 
 ```bash
 # DTO Projesini açtım
@@ -225,7 +225,7 @@ namespace GalaxyExplorer.DTO
 }
 ```
 
-Görevin kendisi için. En az iki en fazla 7 mürettebat olabilen bir görev. Gemi ataması havuzdaki müsait olanlardan yapılacak. Bu yüzden görev gemisi ile ilgili bir bilgi eklemedim.
+Görevin kendisi içinde aşağıdaki gibi tasarım iyi olur. En az iki en fazla yedi mürettebat katılabilen görevlerden bahsetmiştik. Gemi ataması ise havuzdaki müsait olanlardan yapılmalı. Bu yüzden görev gemisi ile ilgili bir bilgi eklemedim.
 
 ```csharp
 using System;
@@ -251,7 +251,7 @@ namespace GalaxyExplorer.DTO
 }
 ```
 
-Görevi başlatma sırasında oluşacak hatalar ile ilgili de belki bir response türü iyi olabilirmiş.
+Görevi başlatma sırasında oluşacak hatalar ile ilgili ayrı bir response türü kullanmak da yararlı olur. Bunu sağlamak için MissionStartResponse sınıfını ekledim.
 
 ```csharp
 namespace GalaxyExplorer.DTO
@@ -264,9 +264,11 @@ namespace GalaxyExplorer.DTO
 }
 ```
 
+_Başka ne tür validasyon nitelikleri kullanılabilir, araştırmalarını söyleyelim_
+
 ## 4 - Servis Bileşenleri için Kütüphane Eklenmesi
 
-Web API haricinde buradaki kurguyu farklı bir ortamda da kullanmak isteyebilirim. Controller'ın kullanacağı Entity Framework işleri başka bir kütüphaneye alsam güzel olabilir. Hatta servisleştirirsem daha iyi. Böylece Dependency Injection ile eklemem de kolay olur. Önce bir kütüphane oluşturayım ve gerekli projeleri referans edeyim.
+Web API haricinde buradaki kurguyu farklı bir ortamda da kullanmak isteyebilirim. Controller'ın kullanacağı Entity Framework işlerini başka bir kütüphaneye soyutlasam güzel olabilir. Hatta servisleştirirsem daha da iyi gibi. Böylece Dependency Injection çatısını kullanarak asıl ürüne eklemem de kolay olur. Önce bir kütüphane oluşturayım ve gerekli projeleri referans edeyim. _Dependency Injection. Hassas çok hassas bir konu. Burada gerekirse uzun süre kalıp karşılıklı konuşmak, önceki derslerde anlatılan kısımlara refernas ederek yönlendirmek gerekir_
 
 ```bash
 # Projeyi oluştur
@@ -297,7 +299,7 @@ namespace GalaxyExplorer.Service
 }
 ```
 
-Sonra asıl işi yapan _(Concrete)_ sınıfı yazdım.
+Sonra asıl işi yapan sınıfı _(Concrete Class)_ yazdım.
 
 ```csharp
 using GalaxyExplorer.DTO;
@@ -396,9 +398,11 @@ namespace GalaxyExplorer.Service
 }
 ```
 
-## 5 - Sırada Controller var. Yani Web API
+_Yazılan servis kodundan sorular sorulabilir. Örneğin hangi tür injection kullanılmaktadır, veritabanı belli midir, belli ise bağlantı bilgisi nerededir, transaction açılmasının sebebi nedir, temel transaction ilkeleri nelerdir vb. Buradan yola çıkarak "BASE'i duymuş muydunuz?" diye sorulabilir ve NoSQL ilkelerine geçilip dağıtık sistemler için önem arz eden CAP teoremine atıfta bulunulabilinir. Detaylar ders harici zamanlarda merak edenlerle konuşulabilir veya araştırma ödevi olarak atanabilir._ 
 
-Önce projeyi oluşturup gerekli paketleri ekledim.
+## 5 - Sırada Controller var. Yani Web API'nin İnşası
+
+Önce projeyi oluşturup gerekli paketleri ve proje referanslarını aşağıdaki gibi ekledim.
 
 ```bash
 # Web API projesini oluştur
@@ -422,7 +426,7 @@ dotnet add reference ..\GalaxyExplorer.DTO\GalaxyExplorer.DTO.csproj
 dotnet add reference ..\GalaxyExplorer.Entity\GalaxyExplorer.Entity.csproj
 ```
 
-Startup.cs içerisindeki ConfigureServices metodunu aşağıdaki hale getirdim.
+Startup.cs içerisindeki ConfigureServices metodunu da aşağıdaki hale getirdim.
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
@@ -441,7 +445,7 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
-ConnectionString bilgisi ise şöyle
+Bu senaryo özelinde makinelerimizde hazır olması sebebiyle Local SQL Server'ı kullanmayı tercih ettim. Gerekli ConnectionString bilgisini AppSettings.json dosyasına aşağıdaki gibi ekledim. _Sınıfı katılımcı sayısına göre gruplara bölüp farklı veritabanı ile çalışmalarını sağlatabiliriz. Postgresql'in Docker Container kullanan bir versiyonu ideal çözüm olabilir._
 
 ```json
 "ConnectionStrings": {
@@ -486,13 +490,13 @@ namespace GalaxyExplorer.API.Controller
 }
 ```
 
-Controller'ın IMissionService implementasyonunu kullanabilmesi içinse Startup'taki DI servisine kayıt işlemini yapmayı da ihmal etmedim.
-
+Controller'ın IMissionService implementasyonunu kullanabilmesi için Startup dosyasında yer alan DI servislerine gerekli bildirimi yapmayı da ihmal etmedim.
+ 
 ```csharp
 services.AddTransient<IMissionService, MissionService>();
 ```
 
-Migration işlemleri için dotnet ef aracını kullanadım ve aşağıdaki gibi ilerledim. 
+Artık bir şeyleri elle tutulur şekilde gösterebilmek de gerekiyor. Bunun için veri tabanının oluşması lazım. Dolayısıyla mevzu Migration. Migration işlemleri için dotnet ef aracını kullanadım ve aşağıdaki gibi ilerledim. 
 
 ```bash
 # Tool kurulumu için
@@ -509,13 +513,15 @@ dotnet ef migrations add Initial -o Db/Migrations
 dotnet ef database update
 ```
 
-## 6 - Testler
+_Tam bu noktada SQL tarafına geçip bir veri tabanı oluştuğundan ve hatta Spaceship tablosuna örnek verilerin dolduğundan emin olmak lazım. Diğer yandan Local SQL yerine Docker'dan yararlanarak popüler bir başka veritabanını basitçe kullanabileceğimizi de belirtmemiz önemli. [Şuradaki gibi](https://github.com/buraksenyurt/studious-adventure) diyerek referans da gösterebiliriz._
 
-Web API doğrudan çalıştırılınca Swagger arayüzü karşıma çıktı. Dolayısıyla ilk testleri yapmak oldukça kolay oldu. 
+## 6 - Öncü Testler
+
+Web API doğrudan çalıştırılınca Swagger arayüzü karşımıza çıkar. Dolayısıyla ilk testleri yapmak oldukça kolay olur. Eskiden buralar dutluktu. 
 
 ![assets/asset_02.png](assets/assets_02.png)
 
-Örnek bir JSON içeriğini aşağıdaki gibi uyguladım.
+Örnek bir JSON içeriğini de aşağıdaki gibi uyguladım.
 
 ```json
 {
@@ -538,17 +544,17 @@ Web API doğrudan çalıştırılınca Swagger arayüzü karşıma çıktı. Dol
 }
 ```
 
-Bu da gerekirse diye Curl komutu.
+Bu da gerekirse diye Curl komutu. _Her platformu düşünmemiz lazım._
 
 ```bash
 curl -X POST "https://localhost:44306/api/Mission" -H  "accept: */*" -H  "Content-Type: application/json" -d "{\"name\":\"Ufuk Ötesi Macerası\",\"plannedDuration\":18,\"voyagers\":[{\"name\":\"Kaptan Tupolev\",\"grade\":\"Yüzbaşı\"},{\"name\":\"Melani Garbo\",\"grade\":\"Bilim Subayı\"},{\"name\":\"Dursun Durmaz\",\"grade\":\"Seyrüseferci\"}]}"
 ```
 
-Bu JSON içeriği için sonuçlar güzel.
+Bu örnek JSON talebi sonrası elde edilen sonuçlar güzel. _Öğrencilerin elde ettiği sonuçları da gözlemlemek gerekiyor._
 
 ![assets/asset_03.png](assets/assets_03.png)
 
-Validasyonların çalıştığını görmek için aşağıdaki gibi bir JSON talebi denedim.
+Validasyonların çalıştığını görmek içinse aşağıdaki gibi bir JSON talebi denedim.
 
 ```json
 {
@@ -567,13 +573,15 @@ Buna göre şöyle bir çıktı elde ettim. Yani doğrulama kontrolleri görevin
 
 ![assets/asset_04.png](assets/assets_04.png)
 
+_Bu andan itibaren başka ne gibi fonksiyonelliklere ihtiyacımız olabilir diye tartışma açmak lazım. Bu yeni fonksiyonellikleri öğrencilerin uygulaması istenebilir. Öncü olması açısından da Ek Geliştirmeler başlığı altında aşağıdaki adımlar gösterilir._
+
 ## 7 - Ek Geliştirmeler
 
 Temel senaryo aslında tamam ancak... 
 
 Gezginler zaman içerisinde sayıca artacaktır. Genelde bu tip senaryolarda HTTP Get ile çağırılan fonksiyonlar tüm listeyi döndürür. Ancak satır sayısı fazla ise servisten her şeyi döndürmek iyi bir pratik olmayabilir. Bunun yerine kriter bazlı veri döndürmek daha iyi olur. Örneğin aktif görevde olan veya olmayanların listeini çekmek. Yine de bu bile fazla veri dönmesine sebebiyet verebilir. Sayfalama kriteri eklemek iyi bir çözüm olabilir. Bu sebeple Response ve Request için bazı DTO tipleri tasarladım.
 
-Controller'ın ilgili metoduna gelecek talebin aşağıdaki sınıfa uygun olmasını istedim. Kaçıncı sayfadan itibaren kaç satır alınacağını belirttim.
+Controller'ın ilgili metoduna gelecek talebin de aşağıdaki sınıfa uygun olmasını istedim. Kaçıncı sayfadan itibaren kaç satır alınacağını belirttim.
 
 ```csharp
 using System.ComponentModel.DataAnnotations;
@@ -609,7 +617,7 @@ namespace GalaxyExplorer.DTO
 }
 ```
 
-Bu response tipinden kullanılan listenin elemanını ise aşağıdaki gibi geliştirdim. Basit birkaç bilgi ve detaya gitmek için bir bağlantı ifadesi işe yarayabilir.
+Bu response tipinde kullanılan liste elemanını ise aşağıdaki gibi geliştirdim. Bununla birlikte basit birkaç bilgi ve detaya gitmek için bağlantı ifadesini taşıyan özellik kullanmak da işe yarayabilir.
 
 ```csharp
 namespace GalaxyExplorer.DTO
@@ -629,7 +637,7 @@ Sonrasında Servis arayüzüne yeni fonksiyon bildirimini ekledim.
 Task<GetVoyagersResponse> GetVoyagers(GetVoyagersRequest request);
 ```
 
-ve eklenen yeni metodu MissionService üzerinde uyguladım.
+ve eklenen yeni metodu MissionService üzerinde de uyguladım.
 
 ```csharp
 public async Task<GetVoyagersResponse> GetVoyagers(GetVoyagersRequest request)
@@ -691,6 +699,8 @@ namespace GalaxyExplorer.API.Controller
 }
 ```
 
+_Burada biraz durup tartışma başlatmak da gerekiyor. İdeal bir Controller dağılımı söz konusu gibi. Voyager ile ilgili operasyonları VoyagerController, Mission ile ilgili operasyonları MissionController üstleniyor. Açıkta bıraktığımız nokta her ikisinin IMissionService türevli bileşenleri kullanması. İdeal bir tasarımda IVoyagerService de söz konusu olmalıdır. Lakin bunun bir soru olarak gelmesini beklemeliyim. Gelmezse "Sizce ideal bir tasarım oldu mu?" gibi sorup öğrencileri bu noktaya çekmeliyim._
+
 Uygulamayı tekrar çalıştırıp başka görevler de başlattıktan sonra Get metodunu yine Swagger arabirimi üzerinden test ettim.
 
 ![assets/asset_05.png](assets/assets_05.png)
@@ -700,7 +710,7 @@ Uygulamayı tekrar çalıştırıp başka görevler de başlattıktan sonra Get 
 curl -X GET "https://localhost:44306/api/Voyager?PageNumber=1&PageSize=5&OnMission=true" -H  "accept: */*"
 ```
 
-Sonuç
+Kendi test sonucum aşağıdaki gibiydi.
 
 ```json
 {
@@ -741,10 +751,12 @@ Tabi sonraki sayfayı da nextPage ile gelen url'i kullanarak denedim.
 
 ![assets/asset_06.png](assets/assets_06.png)
 
+_Buraya kadar öğrenciler başarılı bir şekilde gelebiliyse harika. Eğlenceli sayılabilecek ama açık noktaları da olan bir senaryo üstünden iki temel fonksiyon kullanmış olduk. Biraz Dependency Injection, biraz Entity Framework, biraz LINQ, biraz asenkron operasyon kullanımı, biraz migration işleri, biraz Swagger farkındalığı vs... Bu kazanımları "Aklınızda neler kaldı?" diyerek öğrencilere özetletmek gerekiyor. Sorular da aldıktan sonra onlara bazı ödevler vermek şart._
+
 ## Öğrenciye Neler Yaptırılabilir?
 
 - Voyager listesinden herbir gezginin şu ana kadar katıldığı toplam görev sayısını da döndürebiliriz.
 - Voyager listesinden dönen Detail özelliğinin karşılığı olan Controller metodunu tamamlayabiliriz.
 - Aktif görevler ve bu görevlerdeki gezginlerin listesini döndürecek bir fonksiyon ekletebiliriz.
-- VoyagerController için MissionService yerine başka bir soyutlama yaptırılabilir _(IVoyagerService ve VoyagerService gibi)_? 
+- VoyagerController için MissionService yerine başka bir soyutlama yaptırabiliriz _(IVoyagerService ve VoyagerService gibi)_ 
 - Tamamlanan görevle ilgili güncellemeri yapacak bir PUT fonksiyonu dahil ettirilebilir. O görevin durumunu tamamlandıya çekip, göreve katılan mürettebatı yeni görev almaya uygun olarak işaretleyen bir fonksiyon olabilir. Eksik Entity alanları varsa onların fark edilmesi ve yeni bir Migration planı hazırlanıp çalıştırılması sağlanabilir.
