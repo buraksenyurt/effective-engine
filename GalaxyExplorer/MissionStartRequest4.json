@@ -1,0 +1,14 @@
+{
+	"name": "Phantom of the Opera",
+	"plannedDuration": 6,
+	"voyagers": [
+		{
+			"name": "Shaggy",
+			"grade": "Mistery Detective"
+		},
+		{
+			"name": "Scooby Do",
+			"grade": "Mister Detective"
+		}
+	]
+}

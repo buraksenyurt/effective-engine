@@ -1,0 +1,18 @@
+﻿{
+  "name": "Operation Dinner Out",
+  "plannedDuration": 12,
+  "voyagers": [
+    {
+      "name": "Agent Scally",
+      "grade": "Secret Services"
+    },
+    {
+      "name": "Agent Fox Moldır",
+      "grade": "Secret Services"
+    },
+    {
+      "name": "Agent Smith",
+      "grade": "Secret Services"
+    }
+  ]
+}

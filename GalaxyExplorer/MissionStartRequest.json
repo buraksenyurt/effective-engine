@@ -1,0 +1,30 @@
+﻿{
+  "name": "Ufuk Ötesi Macerası",
+  "plannedDuration": 18,
+  "voyagers": [
+    {
+      "name": "Kaptan Tupolev",
+      "grade": "Yüzbaşı"
+    },
+    {
+      "name": "Melani Garbo",
+      "grade": "Bilim Subayı"
+    },
+    {
+      "name": "Dursun Durmaz",
+      "grade": "Seyrüseferci"
+    },
+    {
+      "name": "Di Ays Men",
+      "grade": "İkinci Pilot"
+    },
+    {
+      "name": "Mevrik",
+      "grade": "Birinci Pilot"
+    },
+    {
+      "name": "Healseying",
+      "grade": "Sağlık Subayı"
+    }
+  ]
+}
