@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GalaxyExplorer.API.Db.Migrations
 {
     [DbContext(typeof(GalaxyExplorerDbContext))]
-    [Migration("20210513224834_ColumnChanged")]
-    partial class ColumnChanged
+    [Migration("20210514112203_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -73,7 +73,7 @@ namespace GalaxyExplorer.API.Db.Migrations
                         {
                             SpaceshipId = 1,
                             MaxCrewCount = 2,
-                            Name = "Saturn IV",
+                            Name = "Saturn IV Rocket",
                             OnMission = false,
                             Range = 1.2
                         },
@@ -105,7 +105,47 @@ namespace GalaxyExplorer.API.Db.Migrations
                         {
                             SpaceshipId = 5,
                             MaxCrewCount = 7,
-                            Name = "Lucky 13",
+                            Name = "Lucky Tortiinn",
+                            OnMission = false,
+                            Range = 7.7000000000000002
+                        },
+                        new
+                        {
+                            SpaceshipId = 6,
+                            MaxCrewCount = 5,
+                            Name = "Battle Master",
+                            OnMission = false,
+                            Range = 10.0
+                        },
+                        new
+                        {
+                            SpaceshipId = 7,
+                            MaxCrewCount = 3,
+                            Name = "Zerash Guidah",
+                            OnMission = true,
+                            Range = 3.3500000000000001
+                        },
+                        new
+                        {
+                            SpaceshipId = 8,
+                            MaxCrewCount = 4,
+                            Name = "Ayran Hayd",
+                            OnMission = false,
+                            Range = 5.0999999999999996
+                        },
+                        new
+                        {
+                            SpaceshipId = 9,
+                            MaxCrewCount = 7,
+                            Name = "Nebukadnezar",
+                            OnMission = false,
+                            Range = 9.0
+                        },
+                        new
+                        {
+                            SpaceshipId = 10,
+                            MaxCrewCount = 7,
+                            Name = "Sifiyus Alpha Siera",
                             OnMission = false,
                             Range = 7.7000000000000002
                         });

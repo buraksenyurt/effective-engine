@@ -48,6 +48,7 @@ namespace GalaxyExplorer.API.Db.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Grade = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FirstMissionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    OnMission = table.Column<bool>(type: "bit", nullable: false),
                     MissionId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -66,11 +67,16 @@ namespace GalaxyExplorer.API.Db.Migrations
                 columns: new[] { "SpaceshipId", "MaxCrewCount", "Name", "OnMission", "Range" },
                 values: new object[,]
                 {
-                    { 1, 2, "Saturn IV", false, 1.2 },
+                    { 1, 2, "Saturn IV Rocket", false, 1.2 },
                     { 2, 5, "Pathfinder", true, 2.6000000000000001 },
                     { 3, 3, "Event Horizon", false, 9.9000000000000004 },
                     { 4, 7, "Captain Marvel", false, 3.1400000000000001 },
-                    { 5, 7, "Lucky 13", false, 7.7000000000000002 }
+                    { 5, 7, "Lucky Tortiinn", false, 7.7000000000000002 },
+                    { 6, 5, "Battle Master", false, 10.0 },
+                    { 7, 3, "Zerash Guidah", true, 3.3500000000000001 },
+                    { 8, 4, "Ayran Hayd", false, 5.0999999999999996 },
+                    { 9, 7, "Nebukadnezar", false, 9.0 },
+                    { 10, 7, "Sifiyus Alpha Siera", false, 7.7000000000000002 }
                 });
 
             migrationBuilder.CreateIndex(
