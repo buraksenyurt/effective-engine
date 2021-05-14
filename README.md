@@ -56,6 +56,7 @@ namespace GalaxyExplorer.Entity
         public string Grade { get; set; }
         public DateTime FirstMissionDate { get; set; }
         public int MissionId { get; set; }
+        public bool OnMission { get; set; }
     }
 }
 ```
@@ -108,7 +109,7 @@ namespace GalaxyExplorer.Entity
                 new Spaceship
                 {
                     SpaceshipId=1,
-                    Name = "Saturn IV",
+                    Name = "Saturn IV Rocket",
                     OnMission = false,
                     Range = 1.2,
                     MaxCrewCount=2
@@ -140,7 +141,47 @@ namespace GalaxyExplorer.Entity
                 new Spaceship
                 {
                     SpaceshipId = 5,
-                    Name = "Lucky 13",
+                    Name = "Lucky Tortiinn",
+                    OnMission = false,
+                    Range = 7.7,
+                    MaxCrewCount = 7
+                },
+                new Spaceship
+                {
+                    SpaceshipId = 6,
+                    Name = "Battle Master",
+                    OnMission = false,
+                    Range = 10,
+                    MaxCrewCount = 5
+                },
+                new Spaceship
+                {
+                    SpaceshipId = 7,
+                    Name = "Zerash Guidah",
+                    OnMission = true,
+                    Range = 3.35,
+                    MaxCrewCount = 3
+                },
+                new Spaceship
+                {
+                    SpaceshipId = 8,
+                    Name = "Ayran Hayd",
+                    OnMission = false,
+                    Range = 5.1,
+                    MaxCrewCount = 4
+                },
+                new Spaceship
+                {
+                    SpaceshipId = 9,
+                    Name = "Nebukadnezar",
+                    OnMission = false,
+                    Range = 9,
+                    MaxCrewCount = 7
+                },
+                new Spaceship
+                {
+                    SpaceshipId = 10,
+                    Name = "Sifiyus Alpha Siera",
                     OnMission = false,
                     Range = 7.7,
                     MaxCrewCount = 7
@@ -286,8 +327,8 @@ namespace GalaxyExplorer.Service
             {
                 // Mürettebat sayısı uygun olup aktif görevde olmayan bir gemi bulmalıyız. Aday havuzunu çekelim.
                 var crewCount = request.Voyagers.Count;
-                var candidates = _dbContext.Spaceships.Where(s => s.MaxCrewCount <= crewCount && s.OnMission == false).ToList();
-                if (candidates.Count >= 0)
+                var candidates = _dbContext.Spaceships.Where(s => s.MaxCrewCount >= crewCount && s.OnMission == false).ToList();
+                if (candidates.Count > 0)
                 {
                     Random rnd = new();
                     var candidateId = rnd.Next(0, candidates.Count);
@@ -315,6 +356,7 @@ namespace GalaxyExplorer.Service
                         {
                             Name = v.Name,
                             Grade = v.Grade,
+                            OnMission = true,
                             MissionId = mission.MissionId // Görevle ilişkilendirdik
                         };
                         voyagers.Add(voyager);
@@ -524,3 +566,185 @@ Validasyonların çalıştığını görmek için aşağıdaki gibi bir JSON tal
 Buna göre şöyle bir çıktı elde ettim. Yani doğrulama kontrolleri görevini yerine getirdi.
 
 ![assets/asset_04.png](assets/assets_04.png)
+
+## 7 - Ek Geliştirmeler
+
+Temel senaryo aslında tamam ancak... 
+
+Gezginler zaman içerisinde sayıca artacaktır. Genelde bu tip senaryolarda HTTP Get ile çağırılan fonksiyonlar tüm listeyi döndürür. Ancak satır sayısı fazla ise servisten her şeyi döndürmek iyi bir pratik olmayabilir. Bunun yerine kriter bazlı veri döndürmek daha iyi olur. Örneğin aktif görevde olan veya olmayanların listeini çekmek. Yine de bu bile fazla veri dönmesine sebebiyet verebilir. Sayfalama kriteri eklemek iyi bir çözüm olabilir. Bu sebeple Response ve Request için bazı DTO tipleri tasarladım.
+
+Controller'ın ilgili metoduna gelecek talebin aşağıdaki sınıfa uygun olmasını istedim. Kaçıncı sayfadan itibaren kaç satır alınacağını belirttim.
+
+```csharp
+using System.ComponentModel.DataAnnotations;
+
+namespace GalaxyExplorer.DTO
+{
+    public class GetVoyagersRequest
+    {
+        [Required]
+        public int PageNumber { get; set; }
+        [Required]
+        [Range(5,20)] // Sayfa başına minimum 5 maksimum 20 satır kabul edelim
+        public int PageSize { get; set; }
+        public bool OnMission { get; set; }
+    }
+}
+```
+
+API metodunun dönüşünü ise aşağıdaki gibi tasarladım. Toplam gezgin sayısı, aktif görevde olan gezgin sayısı, istenen sayfa listesi ve sonraki sayfaya geçiş için yardımcı bağlantı bilgisini döndürmeyi düşündüm.
+
+```csharp
+using System.Collections.Generic;
+
+namespace GalaxyExplorer.DTO
+{
+    public class GetVoyagersResponse
+    {
+        public int TotalVoyagers { get; set; }
+        public int TotalActiveVoyagers { get; set; }
+        public List<VoyagerResponse> Voyagers { get; set; }
+        public string NextPage { get; set; }
+    }
+}
+```
+
+Bu response tipinden kullanılan listenin elemanını ise aşağıdaki gibi geliştirdim. Basit birkaç bilgi ve detaya gitmek için bir bağlantı ifadesi işe yarayabilir.
+
+```csharp
+namespace GalaxyExplorer.DTO
+{
+    public class VoyagerResponse
+    {
+        public string Name { get; set; }
+        public string Grade { get; set; }
+        public string Detail { get; set; }
+    }
+}
+```
+
+Sonrasında Servis arayüzüne yeni fonksiyon bildirimini ekledim.
+
+```csharp
+Task<GetVoyagersResponse> GetVoyagers(GetVoyagersRequest request);
+```
+
+ve eklenen yeni metodu MissionService üzerinde uyguladım.
+
+```csharp
+public async Task<GetVoyagersResponse> GetVoyagers(GetVoyagersRequest request)
+{
+    var currentStartRow = (request.PageNumber - 1) * request.PageSize;
+    var response = new GetVoyagersResponse
+    {
+        // Kolaylık olsun diye sonraki sayfa için de bir link bıraktım
+        // Lakin başka kayıt yoksa birinci sayfaya da döndürebiliriz
+        NextPage = $"api/voyager?PageNumber={request.PageNumber + 1}&PageSize={request.PageSize}&OnMission={request.OnMission}", 
+        TotalVoyagers = await _dbContext.Voyagers.CountAsync(),
+        TotalActiveVoyagers = await _dbContext.Voyagers.CountAsync(v => v.OnMission == true)
+    };
+
+    var voyagers = await _dbContext.Voyagers
+        .Where(v => v.OnMission == request.OnMission)
+        .Skip(currentStartRow)
+        .Take(request.PageSize)
+        .Select(v => new VoyagerResponse
+        {
+            Name = v.Name,
+            Grade = v.Grade,
+            Detail = $"api/voyager/{v.VoyagerId}" // Bu Voyager'ın detaylarını görmek için bir sayfaya gitmek isterse diye
+        })
+        .ToListAsync();
+    response.Voyagers = voyagers;
+
+    return response;
+}
+```
+
+Tabii bu yeni fonksiyonu kullanabilmek için Controller tarafına da müdahale etmem gerekti. Voyager ile ilgili bir işlem söz konusu olduğundan VoyagerController isimli yeni bir Controller tipi ekledim.
+
+```csharp
+using GalaxyExplorer.DTO;
+using GalaxyExplorer.Service;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+
+namespace GalaxyExplorer.API.Controller
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class VoyagerController : ControllerBase
+    {
+        // DI Container'a kayıtlı IMissionService uyarlaması kimse o gelecek
+        private readonly IMissionService _missionService;
+        public VoyagerController(IMissionService missionService)
+        {
+            _missionService = missionService;
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetVoyagers([FromQuery] GetVoyagersRequest request) // Parametreleri QueryString üzerinden almayı tercih ettim
+        {
+            var voyagers = await _missionService.GetVoyagers(request);
+            return Ok(voyagers);
+        }
+    }
+}
+```
+
+Uygulamayı tekrar çalıştırıp başka görevler de başlattıktan sonra Get metodunu yine Swagger arabirimi üzerinden test ettim.
+
+![assets/asset_05.png](assets/assets_05.png)
+
+```bash
+# curl ile test etmek isterseniz
+curl -X GET "https://localhost:44306/api/Voyager?PageNumber=1&PageSize=5&OnMission=true" -H  "accept: */*"
+```
+
+Sonuç
+
+```json
+{
+  "totalVoyagers": 14,
+  "totalActiveVoyagers": 11,
+  "voyagers": [
+    {
+      "name": "Kaptan Tupolev",
+      "grade": "Yüzbaşı",
+      "detail": "api/voyager/1"
+    },
+    {
+      "name": "Melani Garbo",
+      "grade": "Bilim Subayı",
+      "detail": "api/voyager/2"
+    },
+    {
+      "name": "Di Ays Men",
+      "grade": "İkinci Pilot",
+      "detail": "api/voyager/4"
+    },
+    {
+      "name": "Healseying",
+      "grade": "Sağlık Subayı",
+      "detail": "api/voyager/6"
+    },
+    {
+      "name": "Kaptan Fasma",
+      "grade": "Tugay Komutanı",
+      "detail": "api/voyager/7"
+    }
+  ],
+  "nextPage": "api/voyager?PageNumber=2&PageSize=5&OnMission=True"
+}
+```
+
+Tabi sonraki sayfayı da nextPage ile gelen url'i kullanarak denedim.
+
+![assets/asset_06.png](assets/assets_06.png)
+
+## Öğrenciye Neler Yaptırılabilir?
+
+- Voyager listesinden herbir gezginin şu ana kadar katıldığı toplam görev sayısını da döndürebiliriz.
+- Voyager listesinden dönen Detail özelliğinin karşılığı olan Controller metodunu tamamlayabiliriz.
+- Aktif görevler ve bu görevlerdeki gezginlerin listesini döndürecek bir fonksiyon ekletebiliriz.
+- VoyagerController için MissionService yerine başka bir soyutlama yaptırılabilir _(IVoyagerService ve VoyagerService gibi)_? 
+- Tamamlanan görevle ilgili güncellemeri yapacak bir PUT fonksiyonu dahil ettirilebilir. O görevin durumunu tamamlandıya çekip, göreve katılan mürettebatı yeni görev almaya uygun olarak işaretleyen bir fonksiyon olabilir. Eksik Entity alanları varsa onların fark edilmesi ve yeni bir Migration planı hazırlanıp çalıştırılması sağlanabilir.
